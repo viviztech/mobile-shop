@@ -274,9 +274,12 @@ new #[Layout('layouts.app')] class extends Component {
                         <p class="text-xs text-slate-400">Sales Manager</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <p class="text-xs text-slate-400">Today's Sales</p>
-                    <p class="text-lg font-bold text-emerald-400">₹{{ number_format($todayTotal, 2) }}</p>
+                <div class="flex items-center gap-6">
+                    <livewire:layout.header-navigation />
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs text-slate-400">Today's Sales</p>
+                        <p class="text-lg font-bold text-emerald-400">₹{{ number_format($todayTotal, 2) }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -670,7 +673,7 @@ new #[Layout('layouts.app')] class extends Component {
 
     <!-- Bottom Navigation -->
     <nav
-        class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 md:hidden">
+        class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 pb-safe md:hidden">
         <div class="flex items-center justify-around">
             <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 text-violet-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -74,7 +74,7 @@ new #[Layout('layouts.app')] class extends Component {
 
 <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
     <!-- Header -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-900/80 border-b border-white/10">
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-900/80 border-b border-white/10 pt-safe">
         <div class="max-w-4xl mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -89,6 +89,7 @@ new #[Layout('layouts.app')] class extends Component {
                         <p class="text-xs text-slate-400">App Configuration</p>
                     </div>
                 </div>
+                <livewire:layout.header-navigation />
             </div>
         </div>
     </header>
@@ -276,7 +277,7 @@ new #[Layout('layouts.app')] class extends Component {
 
     <!-- Bottom Navigation -->
     <nav
-        class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-6 py-3 md:hidden">
+        class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-6 py-3 pb-safe md:hidden">
         <div class="flex items-center justify-around">
             <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 text-slate-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
