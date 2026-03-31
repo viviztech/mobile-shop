@@ -19,9 +19,13 @@ Route::get('/', function () {
 
 // Protected Routes - require authentication
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Main Sales Dashboard
-    Volt::route('/dashboard', 'sales-manager')
+    // Main Dashboard (Analytics)
+    Volt::route('/dashboard', 'dashboard')
         ->name('dashboard');
+
+    // Sales Entry (POS)
+    Volt::route('/sales', 'sales-manager')
+        ->name('sales');
 
     // Alias routes for navigation
     Route::redirect('/home', '/dashboard')->name('home');

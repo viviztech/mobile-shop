@@ -9,6 +9,7 @@ class Sale extends Model
 {
     protected $fillable = [
         'user_id',
+        'cash_session_id',
         'product_id',
         'sale_date',
         'category',
@@ -24,6 +25,14 @@ class Sale extends Model
         'gift',
         'remarks',
     ];
+
+    /**
+     * Get the session associated with the sale.
+     */
+    public function cashSession(): BelongsTo
+    {
+        return $this->belongsTo(CashSession::class);
+    }
 
     protected $casts = [
         'sale_date' => 'date',

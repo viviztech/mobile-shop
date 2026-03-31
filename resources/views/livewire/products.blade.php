@@ -403,7 +403,7 @@ new #[Layout('layouts.app')] class extends Component {
                             <!-- Product Icon -->
                             <div
                                 class="w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center
-                                                {{ $product->category === 'MOBILE' ? 'bg-violet-500/20' : ($product->category === 'ACCESSORY' ? 'bg-amber-500/20' : 'bg-emerald-500/20') }}">
+                                                        {{ $product->category === 'MOBILE' ? 'bg-violet-500/20' : ($product->category === 'ACCESSORY' ? 'bg-amber-500/20' : 'bg-emerald-500/20') }}">
                                 @if($product->category === 'MOBILE')
                                     <svg class="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -429,7 +429,7 @@ new #[Layout('layouts.app')] class extends Component {
                                 <div class="flex items-center gap-2 mb-1">
                                     <span
                                         class="px-2 py-0.5 text-xs font-medium rounded-full
-                                                        {{ $product->category === 'MOBILE' ? 'bg-violet-500/20 text-violet-400' :
+                                                                {{ $product->category === 'MOBILE' ? 'bg-violet-500/20 text-violet-400' :
                     ($product->category === 'ACCESSORY' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400') }}">
                                         {{ $product->category }}
                                     </span>
@@ -461,7 +461,7 @@ new #[Layout('layouts.app')] class extends Component {
                                 <div class="mt-2 flex items-center justify-end gap-2">
                                     <div
                                         class="flex items-center gap-1 px-2 py-1 rounded-lg 
-                                                        {{ $product->stock_quantity === 0 ? 'bg-red-500/20 text-red-400' :
+                                                                {{ $product->stock_quantity === 0 ? 'bg-red-500/20 text-red-400' :
                     ($product->is_low_stock ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400') }}">
                                         <span class="text-xs font-medium">{{ $product->stock_quantity }} in stock</span>
                                     </div>
@@ -525,8 +525,8 @@ new #[Layout('layouts.app')] class extends Component {
                                     <input wire:model.live="category" type="radio" name="category" value="{{ $cat }}"
                                         class="sr-only peer">
                                     <div class="px-3 py-2 text-center rounded-xl border transition-all text-sm
-                                                        peer-checked:bg-violet-600 peer-checked:border-violet-500 peer-checked:text-white
-                                                        bg-white/5 border-white/10 text-slate-400 hover:bg-white/10">
+                                                                peer-checked:bg-violet-600 peer-checked:border-violet-500 peer-checked:text-white
+                                                                bg-white/5 border-white/10 text-slate-400 hover:bg-white/10">
                                         {{ $cat }}
                                     </div>
                                 </label>
@@ -558,8 +558,8 @@ new #[Layout('layouts.app')] class extends Component {
                                                 class="sr-only peer">
                                             <div
                                                 class="px-3 py-2 text-center rounded-xl border transition-all text-sm
-                                                                        peer-checked:bg-emerald-600 peer-checked:border-emerald-500 peer-checked:text-white
-                                                                        bg-white/5 border-white/10 text-slate-400 hover:bg-white/10">
+                                                                                    peer-checked:bg-emerald-600 peer-checked:border-emerald-500 peer-checked:text-white
+                                                                                    bg-white/5 border-white/10 text-slate-400 hover:bg-white/10">
                                                 {{ $type }}
                                             </div>
                                         </label>
@@ -673,14 +673,21 @@ new #[Layout('layouts.app')] class extends Component {
 
     <!-- Bottom Navigation -->
     <nav
-        class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-6 py-3 pb-safe md:hidden">
+        class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 pb-safe md:hidden">
         <div class="flex items-center justify-around">
             <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 text-slate-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-                <span class="text-xs">Home</span>
+                <span class="text-xs">Dashboard</span>
+            </a>
+            <a href="{{ route('sales') }}" class="flex flex-col items-center gap-1 text-slate-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-xs">Sales</span>
             </a>
             <a href="{{ route('products') }}" class="flex flex-col items-center gap-1 text-violet-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

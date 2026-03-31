@@ -130,6 +130,12 @@ new #[Layout('layouts.app')] class extends Component {
             ->sortByDesc('revenue')
             ->values();
 
+        // Cash Sessions
+        $sessions = \App\Models\CashSession::where('user_id', $userId)
+            ->where('opened_at', '>=', $startDate)
+            ->orderBy('opened_at', 'desc')
+            ->get();
+
         return [
             'sales' => $sales,
             'totalRevenue' => $totalRevenue,
@@ -143,7 +149,9 @@ new #[Layout('layouts.app')] class extends Component {
             'dailyData' => $dailyData,
             'serviceData' => $serviceData,
             'categories' => Sale::categories(),
+            'sessions' => $sessions,
         ];
+
     }
 }; ?>
 
@@ -161,7 +169,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </a>
                     <div>
                         <h1 class="text-xl font-bold text-white">Reports</h1>
-                        <p class="text-xs text-slate-400">Sales Analytics</p>
+                        <p class="text-xs text-slate-400">Business Insight</p>
                     </div>
                 </div>
                 <livewire:layout.header-navigation />
@@ -227,6 +235,71 @@ new #[Layout('layouts.app')] class extends Component {
                 <p class="text-lg font-bold text-white">₹{{ number_format($avgOrderValue, 0) }}</p>
             </div>
         </div>
+
+        <!-- Cash Session History (New) -->
+        @if($sessions->isNotEmpty() && $categoryFilter === 'all')
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Cash Sessions
+                    </h2>
+                </div>
+                <div class="space-y-4">
+                    @foreach($sessions as $session)
+                        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 transition-all hover:bg-white/10">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full {{ $session->status === 'open' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500' }}"></span>
+                                    <p class="text-sm font-bold text-white uppercase tracking-wider">
+                                        {{ $session->status === 'open' ? 'Current Session' : 'Ended Session' }}
+                                    </p>
+                                </div>
+                                <p class="text-xs text-slate-400 font-mono italic">
+                                    {{ $session->opened_at->format('M d, H:i') }}
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Opening</p>
+                                    <p class="text-white font-mono text-sm">₹{{ number_format($session->opening_balance, 0) }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Sales</p>
+                                    <p class="text-emerald-400 font-mono text-sm">+ ₹{{ number_format($session->sales->sum('total_amount'), 0) }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Expected</p>
+                                    <p class="text-violet-400 font-mono font-bold text-sm">₹{{ number_format($session->expected_balance ?: $session->calculateExpectedBalance(), 0) }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Actual</p>
+                                    @if($session->status === 'closed')
+                                        <p class="text-amber-400 font-mono font-bold text-sm">₹{{ number_format($session->closing_balance, 0) }}</p>
+                                    @else
+                                        <p class="text-slate-600 font-mono italic text-[10px]">Pending</p>
+                                    @endif
+                                </div>
+                            </div>
+                            @if($session->status === 'closed' && ($session->closing_balance != $session->expected_balance))
+                                @php $diff = $session->closing_balance - $session->expected_balance; @endphp
+                                <div class="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
+                                    <svg class="w-3 h-3 {{ $diff > 0 ? 'text-emerald-400' : 'text-red-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <p class="text-[10px] {{ $diff > 0 ? 'text-emerald-400' : 'text-red-400' }} font-bold">
+                                        Discrepancy: ₹{{ number_format($diff, 2) }} ({{ $diff > 0 ? 'Surplus' : 'Shortage' }})
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
 
         <!-- Category Breakdown -->
         @if($categoryData->isNotEmpty() && $categoryFilter === 'all')
@@ -450,10 +523,15 @@ new #[Layout('layouts.app')] class extends Component {
         <div class="flex items-center justify-around">
             <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 text-slate-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-                <span class="text-xs">Home</span>
+                <span class="text-xs">Dashboard</span>
+            </a>
+            <a href="{{ route('sales') }}" class="flex flex-col items-center gap-1 text-slate-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-xs">Sales</span>
             </a>
             <a href="{{ route('products') }}" class="flex flex-col items-center gap-1 text-slate-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -463,17 +541,14 @@ new #[Layout('layouts.app')] class extends Component {
             </a>
             <a href="{{ route('reports') }}" class="flex flex-col items-center gap-1 text-violet-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 <span class="text-xs">Reports</span>
             </a>
             <a href="{{ route('settings') }}" class="flex flex-col items-center gap-1 text-slate-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span class="text-xs">Settings</span>
             </a>

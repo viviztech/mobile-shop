@@ -18,7 +18,11 @@ new class extends Component {
 <nav class="hidden md:flex items-center gap-6">
     <a href="{{ route('dashboard') }}" wire:navigate
         class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-400' }}">
-        Home
+        Dashboard
+    </a>
+    <a href="{{ route('sales') }}" wire:navigate
+        class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('sales') ? 'text-white' : 'text-slate-400' }}">
+        Sales
     </a>
     <a href="{{ route('products') }}" wire:navigate
         class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('products') ? 'text-white' : 'text-slate-400' }}">
@@ -31,10 +35,6 @@ new class extends Component {
     <a href="{{ route('settings') }}" wire:navigate
         class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('settings') ? 'text-white' : 'text-slate-400' }}">
         Settings
-    </a>
-    <a href="{{ route('profile') }}" wire:navigate
-        class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('profile') ? 'text-white' : 'text-slate-400' }}">
-        Profile
     </a>
 
     <div class="h-4 w-px bg-white/10 mx-2"></div>
